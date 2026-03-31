@@ -1,0 +1,18 @@
+# Binaries
+server
+*.exe
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Go test cache
+*.test
+*.out
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: apkvault-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    # If your backend is also dockerized locally on the same network, 
+    # it can be added here or referenced via external networks.
