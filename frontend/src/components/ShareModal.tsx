@@ -25,7 +25,23 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
 
   const handleGenerateCode = () => { if (release) runCode(generateShareCode(release.id)) }
   const handleGenerateLink = () => { if (release) runLink(generateShareLink(release.id, expiryHours, singleUse)) }
-  const handleCopy = (text: string, label = 'Copied!') => navigator.clipboard.writeText(text).then(() => toast.success(label))
+  const handleCopy = (text: string, label = 'Copied!') => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => toast.success(label)).catch(() => fallbackCopy(text, label))
+    } else {
+      fallbackCopy(text, label)
+    }
+  }
+  const fallbackCopy = (text: string, label: string) => {
+    const el = document.createElement('textarea')
+    el.value = text
+    el.style.cssText = 'position:fixed;top:-9999px;left:-9999px'
+    document.body.appendChild(el)
+    el.focus()
+    el.select()
+    try { document.execCommand('copy'); toast.success(label) } catch { toast.error('Copy failed') }
+    document.body.removeChild(el)
+  }
 
   const handleClose = () => { resetCode(); resetLink(); setTab('code'); onClose() }
   const formatExpiry = (iso: string) => { try { return new Date(iso).toLocaleString() } catch { return iso } }
