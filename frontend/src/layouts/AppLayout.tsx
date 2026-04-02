@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useTheme } from '../hooks/useTheme'
 import {
   LayoutDashboard, FolderKanban, Upload, LogOut, Package,
-  Menu, Users, ShieldCheck, Sun, Moon,
+  Menu, Users, ShieldCheck, Sun, Moon, Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
 import clsx from 'clsx'
@@ -12,8 +12,9 @@ const NAV_ITEMS = [
   { label: 'Dashboard',  icon: LayoutDashboard, to: '/dashboard',  roles: ['admin','developer','user'], accent: '#6366f1' },
   { label: 'Projects',   icon: FolderKanban,    to: '/projects',   roles: ['admin','developer','user'], accent: '#8b5cf6' },
   { label: 'Upload APK', icon: Upload,           to: '/upload',     roles: ['admin','developer'],        accent: '#10b981' },
-  { label: 'Users',      icon: Users,            to: '/users',      roles: ['admin'],                   accent: '#f59e0b' },
-  { label: 'Audit Logs', icon: ShieldCheck,      to: '/audit-logs', roles: ['admin'],                   accent: '#f43f5e' },
+  { label: 'Users',           icon: Users,       to: '/users',            roles: ['admin'], accent: '#f59e0b' },
+  { label: 'Delete Requests', icon: Trash2,      to: '/delete-requests',  roles: ['admin'], accent: '#f43f5e' },
+  { label: 'Audit Logs',      icon: ShieldCheck, to: '/audit-logs',       roles: ['admin'], accent: '#94a3b8' },
 ]
 
 const ROLE_CONFIG: Record<string, { label: string; cls: string; dot: string }> = {

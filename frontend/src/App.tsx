@@ -11,6 +11,7 @@ import UploadPage from './pages/UploadPage'
 import PublicDownloadPage from './pages/PublicDownloadPage'
 import UsersPage from './pages/UsersPage'
 import AuditLogPage from './pages/AuditLogPage'
+import DeleteRequestsPage from './pages/DeleteRequestsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
@@ -66,8 +67,9 @@ export default function App() {
               <Route path="/projects"    element={<ProjectsPage />} />
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
               <Route path="/upload"      element={<UploadPage />} />
-              <Route path="/users"       element={<AdminRoute><UsersPage /></AdminRoute>} />
-              <Route path="/audit-logs"  element={<AdminRoute><AuditLogPage /></AdminRoute>} />
+              <Route path="/users"           element={<AdminRoute><UsersPage /></AdminRoute>} />
+              <Route path="/audit-logs"     element={<AdminRoute><AuditLogPage /></AdminRoute>} />
+              <Route path="/delete-requests" element={<AdminRoute><DeleteRequestsPage /></AdminRoute>} />
             </Route>
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

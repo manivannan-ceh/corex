@@ -124,6 +124,18 @@ func (s *Service) GetDownloadURL(releaseID int) (string, error) {
 	return s.storage.GenerateDownloadURL(context.Background(), s3Key, 60*time.Minute)
 }
 
+func (s *Service) Delete(id int) error {
+	result, err := s.db.Exec(`DELETE FROM releases WHERE id = $1`, id)
+	if err != nil {
+		return err
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return errors.New("release not found")
+	}
+	return nil
+}
+
 func (s *Service) GetByID(id int) (*Release, error) {
 	r := &Release{}
 	err := s.db.QueryRow(

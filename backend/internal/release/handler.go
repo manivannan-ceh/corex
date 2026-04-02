@@ -79,6 +79,24 @@ func (h *Handler) Create(c *gin.Context) {
 	})
 }
 
+func (h *Handler) Delete(c *gin.Context) {
+	releaseID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid release id"})
+		return
+	}
+
+	if err := h.service.Delete(releaseID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	uid := userID.(int)
+	h.audit.Log(&uid, "delete_release", "release", &releaseID, "", c.ClientIP())
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
 func (h *Handler) Download(c *gin.Context) {
 	releaseID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

@@ -15,6 +15,7 @@ func Migrate(db *sql.DB) error {
 		createShareCodesTable,
 		createShareLinksTable,
 		createAuditLogsTable,
+		createDeleteRequestsTable,
 		// Idempotent column additions for existing deployments
 		`ALTER TABLE releases ADD COLUMN IF NOT EXISTS release_type VARCHAR(50) DEFAULT 'feature'`,
 		`ALTER TABLE releases ADD COLUMN IF NOT EXISTS min_sdk INTEGER DEFAULT 21`,
@@ -136,4 +137,17 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     details     TEXT,
     ip_address  VARCHAR(45),
     created_at  TIMESTAMPTZ DEFAULT NOW()
+);`
+
+const createDeleteRequestsTable = `
+CREATE TABLE IF NOT EXISTS delete_requests (
+    id           SERIAL PRIMARY KEY,
+    resource     VARCHAR(50)  NOT NULL,
+    resource_id  INTEGER      NOT NULL,
+    reason       TEXT,
+    requested_by INTEGER      NOT NULL REFERENCES users(id),
+    status       VARCHAR(20)  NOT NULL DEFAULT 'pending',
+    reviewed_by  INTEGER      REFERENCES users(id),
+    reviewed_at  TIMESTAMPTZ,
+    created_at   TIMESTAMPTZ  DEFAULT NOW()
 );`

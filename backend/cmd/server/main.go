@@ -11,6 +11,7 @@ import (
 	"apk-version-control/internal/audit"
 	"apk-version-control/internal/auth"
 	dbpkg "apk-version-control/internal/db"
+	deleterequest "apk-version-control/internal/deleterequest"
 	"apk-version-control/internal/project"
 	"apk-version-control/internal/release"
 	"apk-version-control/internal/share"
@@ -58,6 +59,7 @@ func main() {
 	projectSvc := project.NewService(db)
 	releaseSvc := release.NewService(db, store)
 	shareSvc := share.NewService(db, store)
+	deleteReqSvc := deleterequest.NewService(db)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	authHandler := auth.NewHandler(authSvc, auditSvc)
@@ -66,6 +68,7 @@ func main() {
 	releaseHandler := release.NewHandler(releaseSvc, auditSvc)
 	shareHandler := share.NewHandler(shareSvc, auditSvc)
 	auditHandler := audit.NewHandler(auditSvc)
+	deleteReqHandler := deleterequest.NewHandler(deleteReqSvc, auditSvc)
 
 	// ── Router ────────────────────────────────────────────────────────────────
 	r := gin.Default()
@@ -104,9 +107,12 @@ func main() {
 		protected.POST("/projects/:id/releases", releaseHandler.Create)
 		protected.GET("/releases/:id/download", releaseHandler.Download)
 
-		// Sharing
+		// Sharing — all authenticated roles
 		protected.POST("/releases/:id/share/code", shareHandler.GenerateCode)
 		protected.POST("/releases/:id/share/link", shareHandler.GenerateLink)
+
+		// Delete requests — any authenticated user can create; admin reviews
+		protected.POST("/delete-requests", deleteReqHandler.Create)
 
 		// Admin-only routes
 		admin := protected.Group("/")
@@ -117,6 +123,9 @@ func main() {
 			admin.PUT("/users/:id/role", userHandler.UpdateRole)
 			admin.DELETE("/users/:id", userHandler.Delete)
 			admin.GET("/audit-logs", auditHandler.List)
+			admin.GET("/delete-requests", deleteReqHandler.List)
+			admin.PUT("/delete-requests/:id/review", deleteReqHandler.Review)
+			admin.DELETE("/releases/:id", releaseHandler.Delete)
 		}
 	}
 

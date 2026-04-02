@@ -23,46 +23,27 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
   const [expiryHours, setExpiryHours] = useState(24)
   const [singleUse, setSingleUse] = useState(false)
 
-  const handleGenerateCode = () => {
-    if (!release) return
-    runCode(generateShareCode(release.id))
-  }
+  const handleGenerateCode = () => { if (release) runCode(generateShareCode(release.id)) }
+  const handleGenerateLink = () => { if (release) runLink(generateShareLink(release.id, expiryHours, singleUse)) }
+  const handleCopy = (text: string, label = 'Copied!') => navigator.clipboard.writeText(text).then(() => toast.success(label))
 
-  const handleGenerateLink = () => {
-    if (!release) return
-    runLink(generateShareLink(release.id, expiryHours, singleUse))
-  }
+  const handleClose = () => { resetCode(); resetLink(); setTab('code'); onClose() }
+  const formatExpiry = (iso: string) => { try { return new Date(iso).toLocaleString() } catch { return iso } }
 
-  const handleCopy = (text: string, label = 'Copied!') => {
-    navigator.clipboard.writeText(text).then(() => toast.success(label))
-  }
-
-  const handleClose = () => {
-    resetCode()
-    resetLink()
-    setTab('code')
-    onClose()
-  }
-
-  const formatExpiry = (iso: string) => {
-    try { return new Date(iso).toLocaleString() } catch { return iso }
-  }
-
-  const shareUrl = shareLink
-    ? `${window.location.origin}/download?token=${shareLink.token}`
-    : ''
+  const shareUrl = shareLink ? `${window.location.origin}/download?token=${shareLink.token}` : ''
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={`Share — ${release?.version_name ?? ''}`}>
+
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 p-1 bg-white/[0.04] rounded-xl">
+      <div className="flex gap-1 mb-5 p-1 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
         {([['code', 'Access Code', Code2], ['link', 'Share Link', Link2]] as [TabId, string, React.ElementType][]).map(
           ([id, label, Icon]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
-                tab === id ? 'bg-brand-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
+                tab === id ? 'btn-primary shadow-none' : 'text-secondary hover:text-primary'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -75,7 +56,7 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
       {/* Code tab */}
       {tab === 'code' && (
         <div className="space-y-4 animate-fade-in">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-secondary">
             Generate a one-time 8-character code (valid 15 minutes). Share via chat or email.
           </p>
 
@@ -88,24 +69,28 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
           ) : (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <div className="flex-1 px-4 py-3 rounded-xl bg-brand-600/10 border border-brand-500/30 font-mono text-2xl font-bold text-brand-300 tracking-[0.3em] text-center select-all">
+                <div
+                  className="flex-1 px-4 py-3 rounded-xl font-mono text-2xl font-bold text-brand-400 tracking-[0.3em] text-center select-all"
+                  style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)' }}
+                >
                   {shareCode.code}
                 </div>
-                <button
-                  onClick={() => handleCopy(shareCode.code, 'Code copied!')}
-                  className="btn-ghost border border-white/10 flex-shrink-0"
-                >
+                <button onClick={() => handleCopy(shareCode.code, 'Code copied!')}
+                  className="btn-ghost flex-shrink-0" style={{ border: '1px solid var(--border)' }}>
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-muted">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Expires: {formatExpiry(shareCode.expiry_time)}</span>
               </div>
-              <p className="text-xs text-slate-600">
-                Recipient goes to <span className="font-mono text-slate-500">{window.location.origin}/download</span> and enters the code.
+              <p className="text-xs text-muted">
+                Recipient goes to{' '}
+                <span className="font-mono text-secondary">{window.location.origin}/download</span>{' '}
+                and enters the code.
               </p>
-              <button onClick={handleGenerateCode} disabled={codeLoading} className="btn-ghost text-xs w-full justify-center border border-white/10">
+              <button onClick={handleGenerateCode} disabled={codeLoading}
+                className="btn-ghost text-xs w-full justify-center" style={{ border: '1px solid var(--border)' }}>
                 <RefreshCw className="w-3.5 h-3.5" /> Generate new code
               </button>
             </div>
@@ -116,7 +101,7 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
       {/* Link tab */}
       {tab === 'link' && (
         <div className="space-y-4 animate-fade-in">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-secondary">
             Generate a time-limited shareable link with optional single-use restriction.
           </p>
 
@@ -131,35 +116,30 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {[1, 6, 24, 72].map((h) => (
-                    <button
-                      key={h}
-                      type="button"
-                      onClick={() => setExpiryHours(h)}
+                    <button key={h} type="button" onClick={() => setExpiryHours(h)}
                       className={`py-2 rounded-xl text-xs font-medium border transition-all ${
                         expiryHours === h
                           ? 'bg-brand-600 border-brand-500 text-white'
-                          : 'border-white/10 text-slate-400 hover:text-white bg-white/[0.02]'
+                          : 'text-secondary hover:text-primary'
                       }`}
-                    >
+                      style={expiryHours !== h ? { borderColor: 'var(--border)', background: 'var(--bg-overlay)' } : {}}>
                       {h}h
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Single use */}
-              <button
-                type="button"
-                onClick={() => setSingleUse(!singleUse)}
-                className="flex items-center gap-3 w-full p-3 rounded-xl border border-white/10 hover:border-white/20 transition-all"
-              >
+              {/* Single use toggle */}
+              <button type="button" onClick={() => setSingleUse(!singleUse)}
+                className="flex items-center gap-3 w-full p-3 rounded-xl transition-all"
+                style={{ border: `1px solid ${singleUse ? 'rgba(99,102,241,0.3)' : 'var(--border)'}`, background: 'var(--bg-overlay)' }}>
                 {singleUse
                   ? <ToggleRight className="w-5 h-5 text-brand-400" />
-                  : <ToggleLeft className="w-5 h-5 text-slate-500" />
+                  : <ToggleLeft className="w-5 h-5 text-muted" />
                 }
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white">Single-use link</p>
-                  <p className="text-xs text-slate-500">Link expires after first download</p>
+                  <p className="text-sm font-medium text-primary">Single-use link</p>
+                  <p className="text-xs text-muted">Link expires after first download</p>
                 </div>
               </button>
 
@@ -170,12 +150,14 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
           ) : (
             <div className="space-y-3">
               <div className="flex gap-2">
-                <input readOnly value={shareUrl} className="input flex-1 text-xs font-mono" onClick={(e) => (e.target as HTMLInputElement).select()} />
-                <button onClick={() => handleCopy(shareUrl, 'Link copied!')} className="btn-ghost border border-white/10 flex-shrink-0">
+                <input readOnly value={shareUrl} className="input flex-1 text-xs font-mono"
+                  onClick={(e) => (e.target as HTMLInputElement).select()} />
+                <button onClick={() => handleCopy(shareUrl, 'Link copied!')}
+                  className="btn-ghost flex-shrink-0" style={{ border: '1px solid var(--border)' }}>
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+              <div className="flex flex-wrap gap-3 text-xs text-muted">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" /> Expires: {formatExpiry(shareLink.expiry_time)}
                 </span>
@@ -185,7 +167,8 @@ export default function ShareModal({ isOpen, onClose, release }: Props) {
                   </span>
                 )}
               </div>
-              <button onClick={() => { resetLink(); setSingleUse(false) }} className="btn-ghost text-xs w-full justify-center border border-white/10">
+              <button onClick={() => { resetLink(); setSingleUse(false) }}
+                className="btn-ghost text-xs w-full justify-center" style={{ border: '1px solid var(--border)' }}>
                 <RefreshCw className="w-3.5 h-3.5" /> Generate new link
               </button>
             </div>

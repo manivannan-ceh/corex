@@ -241,4 +241,45 @@ export const getAuditLogs = async () => {
   return res.data.logs
 }
 
+// ─── Delete Requests ─────────────────────────────────────────────────────────
+
+export interface DeleteRequest {
+  id: number
+  resource: string
+  resource_id: number
+  reason: string
+  requested_by: number
+  requester_name: string
+  requester_email: string
+  status: 'pending' | 'approved' | 'rejected'
+  reviewed_by?: number
+  reviewed_at?: string
+  created_at: string
+  resource_name?: string
+}
+
+export const createDeleteRequest = async (resource: string, resourceId: number, reason: string) => {
+  const res = await api.post<{ delete_request: DeleteRequest }>('/delete-requests', {
+    resource,
+    resource_id: resourceId,
+    reason,
+  })
+  return res.data.delete_request
+}
+
+export const deleteRelease = async (releaseId: number) => {
+  await api.delete(`/releases/${releaseId}`)
+}
+
+export const getDeleteRequests = async (status?: string) => {
+  const res = await api.get<{ delete_requests: DeleteRequest[] }>('/delete-requests', {
+    params: status ? { status } : {},
+  })
+  return res.data.delete_requests
+}
+
+export const reviewDeleteRequest = async (id: number, approve: boolean) => {
+  await api.put(`/delete-requests/${id}/review`, { approve })
+}
+
 export default api
