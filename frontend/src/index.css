@@ -2,131 +2,185 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme tokens ─────────────────────────────────────────── */
+:root {
+  --bg-base:        #f0f4f8;
+  --bg-sidebar:     #f8fafc;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #f1f5f9;
+  --bg-overlay:     rgba(0,0,0,0.04);
+  --bg-overlay-2:   rgba(0,0,0,0.07);
+  --border:         rgba(0,0,0,0.08);
+  --border-strong:  rgba(0,0,0,0.14);
+  --text-1:         #0f172a;
+  --text-2:         #475569;
+  --text-3:         #94a3b8;
+  --dot-color:      rgba(0,0,0,0.07);
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  --body-radial:    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.07) 0%, transparent 70%);
+  --topbar-bg:      rgba(248,250,252,0.9);
+}
+
+html.dark {
+  --bg-base:        #080c14;
+  --bg-sidebar:     #080c14;
+  --bg-surface:     #0f1629;
+  --bg-elevated:    #131c2e;
+  --bg-overlay:     rgba(255,255,255,0.05);
+  --bg-overlay-2:   rgba(255,255,255,0.08);
+  --border:         rgba(255,255,255,0.07);
+  --border-strong:  rgba(255,255,255,0.12);
+  --text-1:         #f1f5f9;
+  --text-2:         #94a3b8;
+  --text-3:         #475569;
+  --dot-color:      rgba(255,255,255,0.06);
+  --shadow-card:    0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+  --body-radial:    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.12) 0%, transparent 70%);
+  --topbar-bg:      rgba(8,12,20,0.9);
+}
+
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
-
   html { font-family: 'Inter', system-ui, sans-serif; }
-
   body {
-    @apply bg-[#080c14] text-slate-200 antialiased;
+    background-color: var(--bg-base);
+    color: var(--text-1);
+    @apply antialiased;
     min-height: 100dvh;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.12) 0%, transparent 70%);
+    background-image: var(--body-radial);
+    transition: background-color 0.2s, color 0.2s;
   }
-
   ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { @apply bg-transparent; }
-  ::-webkit-scrollbar-thumb { @apply bg-slate-700/70 rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-slate-500; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 }
 
 @layer components {
-  /* ── Glass surface ───────────────────────────────────────── */
+  /* ── Glass ─── */
   .glass {
-    @apply bg-white/[0.04] backdrop-blur-md border border-white/10;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    @apply rounded-2xl;
   }
 
-  /* ── Card ────────────────────────────────────────────────── */
+  /* ── Card ─── */
   .card {
-    @apply rounded-2xl bg-[#0f1629] border border-white/[0.07] shadow-xl;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    @apply rounded-2xl;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
-  /* ── Gradient card accent (top border line) ──────────────── */
   .card-accent {
     @apply card relative overflow-hidden;
   }
   .card-accent::before {
     content: '';
     @apply absolute top-0 left-0 right-0 h-px;
-    background: linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.6) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.5) 50%, transparent 100%);
   }
 
-  /* ── Buttons ─────────────────────────────────────────────── */
+  /* ── Buttons ─── */
   .btn-primary {
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
            text-white transition-all duration-150 active:scale-95
            disabled:opacity-50 disabled:cursor-not-allowed select-none;
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(99,102,241,0.3);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 4px 16px rgba(99,102,241,0.3);
   }
   .btn-primary:hover:not(:disabled) {
     background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(99,102,241,0.45);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 6px 20px rgba(99,102,241,0.4);
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-slate-400 hover:text-white
-           hover:bg-white/[0.06] font-medium text-sm transition-all duration-150 active:scale-95 select-none;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
+           transition-all duration-150 active:scale-95 select-none;
+    color: var(--text-2);
+  }
+  .btn-ghost:hover {
+    color: var(--text-1);
+    background: var(--bg-overlay-2);
   }
 
   .btn-danger {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30
-           text-rose-400 hover:text-rose-300 font-medium text-sm transition-all duration-150 border
-           border-rose-500/20 select-none;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm
+           transition-all duration-150 select-none
+           bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 hover:text-rose-300;
+    border: 1px solid rgba(244,63,94,0.2);
   }
 
-  /* ── Inputs ──────────────────────────────────────────────── */
+  /* ── Inputs ─── */
   .input {
-    @apply w-full px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.08] text-slate-200
-           placeholder-slate-600 text-sm outline-none transition-all duration-150
-           focus:border-brand-500/50 focus:ring-2 focus:ring-brand-500/15 focus:bg-white/[0.07];
+    @apply w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all duration-150;
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    color: var(--text-1);
+  }
+  .input::placeholder { color: var(--text-3); }
+  .input:focus {
+    border-color: rgba(99,102,241,0.5);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    background: var(--bg-overlay-2);
+  }
+  .input option {
+    background: var(--bg-surface);
+    color: var(--text-1);
   }
 
   .label {
-    @apply block text-sm font-medium text-slate-400 mb-1.5;
+    @apply block text-sm font-medium mb-1.5;
+    color: var(--text-2);
   }
 
-  /* ── Channel / type badges ───────────────────────────────── */
-  .badge-channel {
-    @apply px-2 py-0.5 rounded-full text-xs font-medium;
-  }
+  /* ── Badges ─── */
+  .badge-channel { @apply px-2 py-0.5 rounded-full text-xs font-medium; }
 
-  /* ── Table rows ──────────────────────────────────────────── */
-  .table-row-hover {
-    @apply hover:bg-white/[0.025] transition-colors duration-100;
-  }
+  /* ── Table rows ─── */
+  .table-row-hover { @apply transition-colors duration-100; }
+  .table-row-hover:hover { background: var(--bg-overlay); }
 
-  /* ── Sidebar nav ─────────────────────────────────────────── */
+  /* ── Sidebar nav ─── */
   .nav-item {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-           duration-150 text-slate-500 hover:text-slate-200 hover:bg-white/[0.06] cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
+           transition-all duration-150 cursor-pointer;
+    color: var(--text-3);
   }
+  .nav-item:hover { color: var(--text-1); background: var(--bg-overlay-2); }
 
   .nav-item-active {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer
-           text-white;
-    background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.1) 100%);
-    border: 1px solid rgba(99,102,241,0.25);
-    box-shadow: 0 2px 8px rgba(99,102,241,0.15);
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer;
+    color: var(--text-1);
+    background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.08) 100%);
+    border: 1px solid rgba(99,102,241,0.2);
+    box-shadow: 0 2px 8px rgba(99,102,241,0.12);
   }
 
-  /* ── Tabs ────────────────────────────────────────────────── */
+  /* ── Tabs ─── */
   .tab {
-    @apply px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150
-           text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] cursor-pointer;
+    @apply px-4 py-2 text-sm font-medium rounded-lg transition-all duration-150 cursor-pointer;
+    color: var(--text-3);
   }
+  .tab:hover { color: var(--text-1); background: var(--bg-overlay); }
 
   .tab-active {
-    @apply px-4 py-2 text-sm font-medium rounded-lg text-white cursor-pointer;
-    background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(79,70,229,0.1) 100%);
-    border: 1px solid rgba(99,102,241,0.25);
+    @apply px-4 py-2 text-sm font-medium rounded-lg cursor-pointer;
+    color: var(--text-1);
+    background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.08) 100%);
+    border: 1px solid rgba(99,102,241,0.2);
   }
 
-  /* ── Gradient text ───────────────────────────────────────── */
+  /* ── Utilities ─── */
   .gradient-text {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #c4b5fd 100%);
   }
 
-  /* ── Stat card ───────────────────────────────────────────── */
-  .stat-card {
-    @apply card-accent p-6 flex items-center gap-5 transition-all duration-200 hover:border-white/[0.12];
-  }
-
-  /* ── Animated background dot grid ───────────────────────── */
   .dot-grid {
-    background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
     background-size: 24px 24px;
   }
 }

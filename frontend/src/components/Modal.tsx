@@ -27,12 +27,13 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
       <div className={`card w-full ${maxWidth} animate-slide-up shadow-2xl`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
-          <h2 className="text-base font-semibold text-white">{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/10 transition-colors"
-          >
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+          <h2 className="text-base font-semibold text-primary">{title}</h2>
+          <button onClick={onClose}
+            className="p-1.5 rounded-lg text-muted hover:text-primary transition-colors"
+            style={{ ['--hover-bg' as string]: 'var(--bg-overlay-2)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-overlay-2)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '')}>
             <X className="w-4 h-4" />
           </button>
         </div>

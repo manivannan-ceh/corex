@@ -11,9 +11,9 @@ const ROLES = ['admin', 'developer', 'user'] as const
 type Role = typeof ROLES[number]
 
 const roleColor: Record<string, string> = {
-  admin: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
+  admin:     'bg-rose-500/15 text-rose-400 border-rose-500/20',
   developer: 'bg-brand-500/15 text-brand-400 border-brand-500/20',
-  user: 'bg-slate-500/15 text-slate-400 border-slate-500/20',
+  user:      'bg-slate-500/15 text-slate-400 border-slate-500/20',
 }
 
 function formatDate(iso: string) {
@@ -29,8 +29,7 @@ export default function UsersPage() {
   useEffect(() => { run(getUsers()) }, [])
 
   const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setCreating(true)
+    e.preventDefault(); setCreating(true)
     try {
       await createUser(form)
       toast.success(`User ${form.email} created`)
@@ -38,32 +37,20 @@ export default function UsersPage() {
       setForm({ email: '', password: '', name: '', role: 'developer' })
       run(getUsers())
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to create user'
-      toast.error(msg)
-    } finally {
-      setCreating(false)
-    }
+      toast.error((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to create user')
+    } finally { setCreating(false) }
   }
 
   const handleRoleChange = async (userId: number, role: string) => {
-    try {
-      await updateUserRole(userId, role)
-      toast.success('Role updated')
-      run(getUsers())
-    } catch {
-      toast.error('Failed to update role')
-    }
+    try { await updateUserRole(userId, role); toast.success('Role updated'); run(getUsers()) }
+    catch { toast.error('Failed to update role') }
   }
 
   const handleDelete = async (u: User) => {
     if (!confirm(`Delete user ${u.email}? This cannot be undone.`)) return
-    try {
-      await deleteUser(u.id)
-      toast.success('User deleted')
-      run(getUsers())
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to delete user'
-      toast.error(msg)
+    try { await deleteUser(u.id); toast.success('User deleted'); run(getUsers()) }
+    catch (err: unknown) {
+      toast.error((err as { response?: { data?: { error?: string } } }).response?.data?.error || 'Failed to delete user')
     }
   }
 
@@ -71,10 +58,10 @@ export default function UsersPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
             <Users className="w-6 h-6 text-brand-400" /> User Management
           </h1>
-          <p className="text-slate-500 text-sm mt-0.5">Manage platform users and their roles</p>
+          <p className="text-secondary text-sm mt-0.5">Manage platform users and their roles</p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary">
           <Plus className="w-4 h-4" /> Add User
@@ -83,63 +70,41 @@ export default function UsersPage() {
 
       {error && <ErrorAlert message={error} onRetry={() => run(getUsers())} />}
 
-      {/* Create user modal */}
+      {/* Create modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
           <div className="card w-full max-w-md p-6 space-y-4 animate-slide-up">
-            <h2 className="text-lg font-bold text-white">Add New User</h2>
+            <h2 className="text-lg font-bold text-primary">Add New User</h2>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="label">Full Name *</label>
-                <input
-                  type="text"
-                  className="input"
-                  placeholder="John Doe"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                />
+                <input type="text" className="input" placeholder="John Doe"
+                  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
               </div>
               <div>
                 <label className="label">Email *</label>
-                <input
-                  type="email"
-                  className="input"
-                  placeholder="user@example.com"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                />
+                <input type="email" className="input" placeholder="user@example.com"
+                  value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
               </div>
               <div>
                 <label className="label">Password *</label>
-                <input
-                  type="password"
-                  className="input"
-                  placeholder="Min. 6 characters"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  required
-                  minLength={6}
-                />
+                <input type="password" className="input" placeholder="Min. 6 characters"
+                  value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required minLength={6} />
               </div>
               <div>
                 <label className="label">Role *</label>
-                <select
-                  className="input"
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value as Role })}
-                >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                  ))}
+                <select className="input" value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value as Role })}>
+                  {ROLES.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
                 </select>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="submit" disabled={creating} className="btn-primary flex-1 justify-center">
                   {creating ? <Spinner /> : 'Create User'}
                 </button>
-                <button type="button" onClick={() => setShowCreate(false)} className="btn-ghost border border-white/10 flex-1 justify-center">
+                <button type="button" onClick={() => setShowCreate(false)}
+                  className="btn-ghost flex-1 justify-center" style={{ border: '1px solid var(--border)' }}>
                   Cancel
                 </button>
               </div>
@@ -153,7 +118,7 @@ export default function UsersPage() {
         {loading ? (
           <div className="p-8"><Spinner fullPage /></div>
         ) : !users || users.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+          <div className="flex flex-col items-center justify-center py-20 text-muted">
             <Users className="w-12 h-12 mb-3 opacity-20" />
             <p className="text-sm">No users found</p>
           </div>
@@ -161,51 +126,41 @@ export default function UsersPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/[0.06]">
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
                   {['User', 'Role', 'Joined', 'Actions'].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-medium text-slate-500 tracking-wide uppercase">
-                      {h}
-                    </th>
+                    <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-muted tracking-wide uppercase">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="table-row-hover group">
+                  <tr key={u.id} className="table-row-hover group" style={{ borderBottom: '1px solid var(--border)' }}>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold select-none flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold select-none flex-shrink-0"
+                             style={{ background: 'linear-gradient(135deg,#6366f1 0%,#7c3aed 100%)' }}>
                           {(u.name || u.email)[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-white">{u.name}</p>
-                          <p className="text-xs text-slate-500">{u.email}</p>
+                          <p className="font-medium text-primary">{u.name}</p>
+                          <p className="text-xs text-muted">{u.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="relative inline-block">
-                        <select
-                          value={u.role}
-                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                          className={`appearance-none pl-2 pr-6 py-1 rounded-full text-xs font-medium border cursor-pointer bg-transparent ${roleColor[u.role] || roleColor.user}`}
-                        >
-                          {ROLES.map((r) => (
-                            <option key={r} value={r} className="bg-[#1e2435] text-white">{r}</option>
-                          ))}
+                        <select value={u.role} onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          className={`appearance-none pl-2 pr-6 py-1 rounded-full text-xs font-medium border cursor-pointer bg-transparent ${roleColor[u.role] || roleColor.user}`}>
+                          {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                         </select>
                         <ChevronDown className="w-3 h-3 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-60" />
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-slate-500 text-xs">
-                      {u.created_at ? formatDate(u.created_at) : '—'}
-                    </td>
+                    <td className="px-5 py-4 text-muted text-xs">{u.created_at ? formatDate(u.created_at) : '—'}</td>
                     <td className="px-5 py-4">
-                      <button
-                        onClick={() => handleDelete(u)}
-                        className="p-1.5 rounded-lg text-slate-600 hover:text-rose-400 hover:bg-rose-400/10 transition-all"
-                        title="Delete user"
-                      >
+                      <button onClick={() => handleDelete(u)}
+                        className="p-1.5 rounded-lg text-muted hover:text-rose-400 hover:bg-rose-400/10 transition-all"
+                        title="Delete user">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -219,22 +174,20 @@ export default function UsersPage() {
 
       {/* Role legend */}
       <div className="card p-4">
-        <p className="text-xs font-medium text-slate-500 mb-3 flex items-center gap-1.5">
+        <p className="text-xs font-medium text-muted mb-3 flex items-center gap-1.5">
           <Shield className="w-3.5 h-3.5" /> Role Permissions
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-400">
-          <div className="space-y-1">
-            <span className={`inline-block px-2 py-0.5 rounded-full border font-medium ${roleColor.admin}`}>admin</span>
-            <p>Full access — manage users, create projects, upload & share APKs, view audit logs</p>
-          </div>
-          <div className="space-y-1">
-            <span className={`inline-block px-2 py-0.5 rounded-full border font-medium ${roleColor.developer}`}>developer</span>
-            <p>Create projects, upload & share APKs, view releases</p>
-          </div>
-          <div className="space-y-1">
-            <span className={`inline-block px-2 py-0.5 rounded-full border font-medium ${roleColor.user}`}>user</span>
-            <p>View projects and download APKs only</p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-secondary">
+          {(['admin','developer','user'] as const).map((r) => (
+            <div key={r} className="space-y-1">
+              <span className={`inline-block px-2 py-0.5 rounded-full border font-medium ${roleColor[r]}`}>{r}</span>
+              <p>{r === 'admin'
+                ? 'Full access — manage users, create projects, upload & share APKs, view audit logs'
+                : r === 'developer'
+                ? 'Create projects, upload & share APKs, view releases'
+                : 'View projects and download APKs only'}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
