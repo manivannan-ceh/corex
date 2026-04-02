@@ -12,24 +12,12 @@ func NewService(db *sql.DB) *Service {
 	return &Service{db: db}
 }
 
-// List returns all projects for admins and users, or only the caller's projects for developers.
+// List returns all projects for all roles.
 func (s *Service) List(ownerID int, role string) ([]Project, error) {
-	var (
-		rows *sql.Rows
-		err  error
+	rows, err := s.db.Query(
+		`SELECT id, name, package_name, COALESCE(description,''), owner_id, created_at, updated_at
+         FROM projects ORDER BY created_at DESC`,
 	)
-	if role == "admin" || role == "user" {
-		rows, err = s.db.Query(
-			`SELECT id, name, package_name, COALESCE(description,''), owner_id, created_at, updated_at
-             FROM projects ORDER BY created_at DESC`,
-		)
-	} else {
-		rows, err = s.db.Query(
-			`SELECT id, name, package_name, COALESCE(description,''), owner_id, created_at, updated_at
-             FROM projects WHERE owner_id = $1 ORDER BY created_at DESC`,
-			ownerID,
-		)
-	}
 	if err != nil {
 		return nil, err
 	}

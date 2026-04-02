@@ -9,33 +9,60 @@ import Spinner from '../components/Spinner'
 import ErrorAlert from '../components/ErrorAlert'
 import Modal from '../components/Modal'
 
-function ProjectCard({ project, onClick }: { project: Project; onClick: () => void }) {
+// Cycle through accent colors per card index for visual variety
+const CARD_ACCENTS = [
+  { bar: 'from-brand-500 to-violet-500',   icon: 'bg-brand-500/15 text-brand-400',   border: 'hover:border-brand-500/30'   },
+  { bar: 'from-violet-500 to-purple-500',  icon: 'bg-violet-500/15 text-violet-400', border: 'hover:border-violet-500/30'  },
+  { bar: 'from-cyan-500 to-brand-500',     icon: 'bg-cyan-500/15 text-cyan-400',     border: 'hover:border-cyan-500/30'    },
+  { bar: 'from-emerald-500 to-teal-500',   icon: 'bg-emerald-500/15 text-emerald-400', border: 'hover:border-emerald-500/30' },
+  { bar: 'from-amber-500 to-orange-500',   icon: 'bg-amber-500/15 text-amber-400',   border: 'hover:border-amber-500/30'   },
+  { bar: 'from-rose-500 to-pink-500',      icon: 'bg-rose-500/15 text-rose-400',     border: 'hover:border-rose-500/30'    },
+]
+
+function ProjectCard({ project, onClick, index }: { project: Project; onClick: () => void; index: number }) {
+  const accent = CARD_ACCENTS[index % CARD_ACCENTS.length]
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+
   return (
     <div
       onClick={onClick}
-      className="card p-5 cursor-pointer group hover:border-brand-500/30 hover:shadow-brand-900/20 hover:shadow-2xl transition-all duration-200"
+      className={`card group cursor-pointer transition-all duration-200 hover:shadow-2xl hover:-translate-y-0.5 overflow-hidden ${accent.border}`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-brand-600/20 border border-brand-500/20 flex items-center justify-center group-hover:bg-brand-600/30 transition-colors">
-          <FolderKanban className="w-5 h-5 text-brand-400" />
+      {/* Gradient top accent bar */}
+      <div className={`h-0.5 w-full bg-gradient-to-r ${accent.bar} opacity-0 group-hover:opacity-100 transition-opacity duration-200`} />
+
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent.icon} flex-shrink-0`}>
+            <FolderKanban className="w-5 h-5" />
+          </div>
+          <ArrowRight className="w-4 h-4 text-slate-700 group-hover:text-slate-400 group-hover:translate-x-0.5 transition-all" />
         </div>
-        <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-brand-400 group-hover:translate-x-0.5 transition-all" />
-      </div>
-      <h3 className="font-semibold text-white mb-1 group-hover:text-brand-300 transition-colors">{project.name}</h3>
-      {project.description && (
-        <p className="text-sm text-slate-500 mb-3 line-clamp-2">{project.description}</p>
-      )}
-      {project.package_name && (
-        <p className="text-xs text-slate-600 font-mono mb-3">{project.package_name}</p>
-      )}
-      <div className="flex items-center justify-between pt-3 border-t border-white/[0.05]">
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <Package className="w-3.5 h-3.5" />
-          <span>{project.release_count ?? 0} releases</span>
+
+        <h3 className="font-semibold text-white mb-1 group-hover:text-white transition-colors line-clamp-1">
+          {project.name}
+        </h3>
+
+        {project.description ? (
+          <p className="text-sm text-slate-500 mb-3 line-clamp-2 leading-relaxed">{project.description}</p>
+        ) : (
+          <p className="text-sm text-slate-700 mb-3 italic">No description</p>
+        )}
+
+        {project.package_name && (
+          <p className="text-xs text-slate-600 font-mono bg-white/[0.03] px-2 py-1 rounded-lg border border-white/[0.05] truncate mb-3">
+            {project.package_name}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between pt-3 border-t border-white/[0.05]">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600">
+            <Package className="w-3.5 h-3.5" />
+            <span>{project.release_count ?? 0} release{(project.release_count ?? 0) !== 1 ? 's' : ''}</span>
+          </div>
+          <span className="text-xs text-slate-700">{formatDate(project.created_at)}</span>
         </div>
-        <span className="text-xs text-slate-600">{formatDate(project.created_at)}</span>
       </div>
     </div>
   )
@@ -81,7 +108,7 @@ export default function ProjectsPage() {
         <div>
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-slate-500 text-sm mt-0.5">
-            {projects?.length ?? 0} project{(projects?.length ?? 0) !== 1 ? 's' : ''}
+            {projects?.length ?? 0} project{(projects?.length ?? 0) !== 1 ? 's' : ''} total
           </p>
         </div>
         <button onClick={() => setShowCreate(true)} className="btn-primary" id="create-project-btn">
@@ -91,16 +118,16 @@ export default function ProjectsPage() {
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
         <input
           type="text"
-          placeholder="Search projects…"
+          placeholder="Search by name or package…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="input pl-10 pr-10"
         />
         {search && (
-          <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+          <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         )}
@@ -111,19 +138,26 @@ export default function ProjectsPage() {
       {loading ? (
         <Spinner fullPage />
       ) : filtered.length === 0 ? (
-        <div className="card flex flex-col items-center justify-center py-20 text-slate-600">
-          <FolderKanban className="w-14 h-14 mb-4 opacity-20" />
-          <p className="text-sm mb-1">{search ? 'No projects match your search' : 'No projects yet'}</p>
+        <div className="card flex flex-col items-center justify-center py-24 text-center px-4">
+          <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-5">
+            <FolderKanban className="w-9 h-9 text-slate-700" />
+          </div>
+          <p className="text-slate-400 font-medium mb-1">
+            {search ? 'No matching projects' : 'No projects yet'}
+          </p>
+          <p className="text-sm text-slate-600 mb-5">
+            {search ? 'Try a different search term' : 'Create your first project to get started'}
+          </p>
           {!search && (
-            <button onClick={() => setShowCreate(true)} className="btn-primary mt-4 text-xs">
-              <Plus className="w-3.5 h-3.5" /> Create your first project
+            <button onClick={() => setShowCreate(true)} className="btn-primary text-sm">
+              <Plus className="w-4 h-4" /> Create Project
             </button>
           )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((p) => (
-            <ProjectCard key={p.id} project={p} onClick={() => navigate(`/projects/${p.id}`)} />
+          {filtered.map((p, i) => (
+            <ProjectCard key={p.id} project={p} index={i} onClick={() => navigate(`/projects/${p.id}`)} />
           ))}
         </div>
       )}
