@@ -79,6 +79,18 @@ func (h *Handler) Create(c *gin.Context) {
 	})
 }
 
+func (h *Handler) ListRecent(c *gin.Context) {
+	releases, err := h.service.ListRecent(20)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch recent releases"})
+		return
+	}
+	if releases == nil {
+		releases = []RecentRelease{}
+	}
+	c.JSON(http.StatusOK, gin.H{"releases": releases})
+}
+
 func (h *Handler) Delete(c *gin.Context) {
 	releaseID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

@@ -2,6 +2,18 @@ package release
 
 import "time"
 
+type RecentRelease struct {
+	ID          int       `json:"id"`
+	ProjectID   int       `json:"project_id"`
+	ProjectName string    `json:"project_name"`
+	VersionName string    `json:"version_name"`
+	VersionCode int       `json:"version_code"`
+	ReleaseType string    `json:"release_type"`
+	Channel     string    `json:"channel"`
+	FileSize    int64     `json:"file_size"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type Release struct {
 	ID          int       `json:"id"`
 	ProjectID   int       `json:"project_id"`

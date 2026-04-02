@@ -105,6 +105,7 @@ func main() {
 		// Releases
 		protected.GET("/projects/:id/releases", releaseHandler.List)
 		protected.POST("/projects/:id/releases", releaseHandler.Create)
+		protected.GET("/releases/recent", releaseHandler.ListRecent)
 		protected.GET("/releases/:id/download", releaseHandler.Download)
 
 		// Sharing — all authenticated roles

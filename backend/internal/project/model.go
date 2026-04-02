@@ -8,6 +8,7 @@ type Project struct {
 	PackageName string    `json:"package_name"`
 	Description string    `json:"description"`
 	OwnerID     int       `json:"owner_id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	ReleaseCount int       `json:"release_count"`
 }

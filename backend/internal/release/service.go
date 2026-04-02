@@ -124,6 +124,40 @@ func (s *Service) GetDownloadURL(releaseID int) (string, error) {
 	return s.storage.GenerateDownloadURL(context.Background(), s3Key, 60*time.Minute)
 }
 
+// ListRecent returns the N most recently uploaded releases across all projects,
+// joined with the project name so the dashboard can display it directly.
+func (s *Service) ListRecent(limit int) ([]RecentRelease, error) {
+	rows, err := s.db.Query(
+		`SELECT r.id, r.project_id, p.name AS project_name,
+		        r.version_name, r.version_code,
+		        COALESCE(r.release_type,'feature'), r.channel,
+		        r.file_size, r.created_at
+		 FROM releases r
+		 JOIN projects p ON p.id = r.project_id
+		 ORDER BY r.created_at DESC
+		 LIMIT $1`, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list []RecentRelease
+	for rows.Next() {
+		var rr RecentRelease
+		if err := rows.Scan(
+			&rr.ID, &rr.ProjectID, &rr.ProjectName,
+			&rr.VersionName, &rr.VersionCode,
+			&rr.ReleaseType, &rr.Channel,
+			&rr.FileSize, &rr.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		list = append(list, rr)
+	}
+	return list, rows.Err()
+}
+
 func (s *Service) Delete(id int) error {
 	result, err := s.db.Exec(`DELETE FROM releases WHERE id = $1`, id)
 	if err != nil {

@@ -136,6 +136,23 @@ export const getReleases = async (projectId: number) => {
   return res.data.releases
 }
 
+export interface RecentRelease {
+  id: number
+  project_id: number
+  project_name: string
+  version_name: string
+  version_code: number
+  release_type: string
+  channel: string
+  file_size: number
+  created_at: string
+}
+
+export const getRecentReleases = async () => {
+  const res = await api.get<{ releases: RecentRelease[] }>('/releases/recent')
+  return res.data.releases
+}
+
 export interface CreateReleaseData {
   version_name: string
   version_code: number

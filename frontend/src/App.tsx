@@ -18,6 +18,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return token ? <>{children}</> : <Navigate to="/login" replace />
 }
 
+function UploaderRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem('token')
+  if (!token) return <Navigate to="/login" replace />
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null')
+    if (user?.role !== 'admin' && user?.role !== 'developer') return <Navigate to="/dashboard" replace />
+  } catch {
+    return <Navigate to="/login" replace />
+  }
+  return <>{children}</>
+}
+
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('token')
   if (!token) return <Navigate to="/login" replace />
@@ -66,7 +78,7 @@ export default function App() {
               <Route path="/dashboard"   element={<DashboardPage />} />
               <Route path="/projects"    element={<ProjectsPage />} />
               <Route path="/projects/:id" element={<ProjectDetailPage />} />
-              <Route path="/upload"      element={<UploadPage />} />
+              <Route path="/upload"      element={<UploaderRoute><UploadPage /></UploaderRoute>} />
               <Route path="/users"           element={<AdminRoute><UsersPage /></AdminRoute>} />
               <Route path="/audit-logs"     element={<AdminRoute><AuditLogPage /></AdminRoute>} />
               <Route path="/delete-requests" element={<AdminRoute><DeleteRequestsPage /></AdminRoute>} />
